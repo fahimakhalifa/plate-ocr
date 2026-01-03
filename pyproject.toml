@@ -1,0 +1,12 @@
+# FILE: plate-ocr/pyproject.toml
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = ["venv", ".venv", "__pycache__", "build", "dist"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+"app/streamlit_app.py" = ["E501"]
+"src/process_video.py" = ["E501"]

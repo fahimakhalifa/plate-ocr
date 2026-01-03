@@ -1,5 +1,5 @@
-import torch
 import torch.nn as nn
+
 
 class PlateRecognitionModel(nn.Module):
     def __init__(self, vocab_size, hidden_size=256, num_layers=2):

@@ -1,9 +1,10 @@
-import torch
-from torch.utils.data import Dataset
-import pandas as pd
-from PIL import Image
 import os
 import re
+
+import torch
+from PIL import Image
+from torch.utils.data import Dataset
+
 
 class LicensePlateDataset(Dataset):
     def __init__(self, root_dir, df, transform=None):
