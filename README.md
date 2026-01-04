@@ -1,72 +1,161 @@
-# FILE: plate-ocr/README.md
-# License Plate Recognition & Privacy Filter System
+# Plate OCR — License Plate Recognition & Privacy Filter
 
-An AI-powered License Plate Recognition (LPR) tool that:
+A production-ready **License Plate Recognition (LPR)** system that detects license plates, recognizes text, optionally applies privacy blurring, and supports **both images and videos** through a clean Streamlit UI.
+
+This project is designed as a **portfolio-grade AI engineering demo**, not a toy script.
+
+---
+
+## ✨ What it does
 
 - Detects license plates using **YOLOv8 (Ultralytics)**
 - Recognizes plate text using a **CRNN OCR model (PyTorch)**
-- Optionally **blurs plates** for privacy
-- Supports both **image and video** input via a Streamlit UI
+- Optional **privacy blur** for detected plates
+- Supports **image and video** inputs
+- Exports results as **annotated media + JSON / CSV**
+- Clean, company-ready Streamlit interface
+- Docker + CI ready
 
 ---
 
-## Key Features
+## 🧠 Technical Highlights
 
-- **License Plate Detection** — YOLOv8 model (`ultralytics`)
-- **OCR** — CRNN model in PyTorch + CTC-style decoding
-- **Privacy Mode** — blur plates in images/videos
-- **Image Support** — upload an image and get annotated output + export JSON/CSV
-- **Video Support** — upload a video, process with frame skipping, download processed MP4
-
----
-
-## Tech Stack
-
-- **Ultralytics YOLOv8** – plate detection
-- **PyTorch** – CRNN OCR model
-- **OpenCV** – image/video processing + drawing + blurring
-- **Streamlit** – UI
-- **Torchvision** – image transforms
+- **Modular inference pipeline** (detect → crop → OCR → overlay → export)
+- **CTC-style decoding** for OCR output
+- **Frame skipping** for efficient video processing
+- **Robust path resolution** (works locally, in Docker, and CI)
+- **Unit tests + linting** (pytest + ruff)
+- **No model weights committed** (real-world best practice)
 
 ---
 
-## Project Structure (current)
+## 🧱 Tech Stack
 
+- **YOLOv8 (Ultralytics)** — license plate detection
+- **PyTorch** — CRNN OCR model
+- **OpenCV** — image and video processing
+- **Torchvision** — preprocessing transforms
+- **Streamlit** — UI
+- **Docker** — containerized deployment
+- **pytest + ruff** — testing and linting
+
+---
+
+## 📁 Project Structure
+
+```
 plate-ocr/
-- app/
-  - streamlit_app.py
-- src/
-  - inference.py
-  - model.py
-  - dataset.py
-  - process_video.py
-  - paths.py
-- model/
-  - plate_model_v1.pth
-  - char_to_idx.json
-- example/
-  - test_image.jpg
-  - test_video.mp4
-- LP-detection.pt
-- requirements.txt
-- README.md
+├─ app/
+│  └─ streamlit_app.py
+├─ src/
+│  ├─ inference.py
+│  ├─ model.py
+│  ├─ dataset.py
+│  ├─ process_video.py
+│  └─ paths.py
+├─ assets/
+│  └─ models/          # model weights (local only, not in git)
+├─ examples/
+│  ├─ test_image.jpg
+│  └─ test_video.mp4
+├─ tests/
+├─ Dockerfile
+├─ docker-compose.yml
+├─ requirements.txt
+└─ README.md
+```
 
 ---
 
-## Notes on model files
+## 📦 Model Weights (Required)
 
-This repo expects these files to exist:
+Model weights are **not included in the repository**.
 
-- `LP-detection.pt` (YOLOv8 weights)
-- `model/plate_model_v1.pth` (CRNN weights)
-- `model/char_to_idx.json` (vocab mapping)
+Place the following files locally:
 
-The code resolves paths robustly, so it works from different working directories (useful for Docker/CI).
+```
+assets/models/
+├─ LP-detection.pt
+├─ plate_model_v1.pth
+└─ char_to_idx.json
+```
+
+The application will **automatically resolve these paths**.
 
 ---
 
-## Run locally
+## ▶️ Run Locally (CPU)
+
+### 1. Create and activate a virtual environment
+
+```bash
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# macOS / Linux
+source venv/bin/activate
+```
+
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
+```
+
+### 3. Install FFmpeg (required for video processing)
+
+**Windows**
+```bash
+winget install Gyan.FFmpeg
+```
+
+Verify installation:
+```bash
+ffmpeg -version
+```
+
+> FFmpeg is required for video preview and processing.  
+> Image-only usage does not require FFmpeg.
+
+### 4. Run the app
+
+```bash
 streamlit run app/streamlit_app.py
+```
+
+Open in browser: http://localhost:8501
+
+---
+
+## 🐳 Run with Docker
+
+```bash
+docker build -t plate-ocr .
+docker run -p 8501:8501 plate-ocr
+```
+
+---
+
+## 🧪 Tests & Linting
+
+```bash
+pytest
+ruff check .
+```
+
+---
+
+## 🚀 Use Cases
+
+- Smart city and traffic monitoring
+- Parking and toll systems
+- Privacy-aware video analytics
+- AI/ML engineering portfolio demonstration
+
+---
+
+## 📜 License
+
+For educational and portfolio use.
