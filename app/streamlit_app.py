@@ -242,7 +242,7 @@ _init_state()
 # =========================
 @st.cache_resource
 def load_models():
-    yolo = YOLO(model_asset("LP-detection.pt"))
+    yolo = YOLO(model_asset("last.pt"))
     tfm = transforms.Compose(
         [
             transforms.Resize((32, 160)),
@@ -301,12 +301,20 @@ def run_image_pipeline(image_np: np.ndarray, confidence_threshold: float, privac
 
         input_tensor = transform(pil_plate).unsqueeze(0)
         pred_text = predict_plate(input_tensor)
+        ocr_conf = 0.0  
+
+        if not pred_text:
+            pred_text = "N/A"
+
+
 
         if privacy:
             processed[y1:y2, x1:x2] = cv2.GaussianBlur(processed[y1:y2, x1:x2], (25, 25), 30)
 
         cv2.rectangle(processed, (x1, y1), (x2, y2), (0, 255, 0), 3)
-        cv2.putText(processed, pred_text, (x1, y1 - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+        label = f"{pred_text} ({ocr_conf:.2f})" if pred_text != "N/A" else "N/A"
+        cv2.putText(processed, label, (x1, y1 - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
 
         plates_found += 1
         total_conf += confidence
@@ -317,6 +325,7 @@ def run_image_pipeline(image_np: np.ndarray, confidence_threshold: float, privac
                 "Location": f"({x1}, {y1})",
                 "Text": pred_text,
                 "Confidence": confidence,
+                "OCR_Confidence": float(ocr_conf),
                 "Box": [x1, y1, x2, y2],
             }
         )
@@ -340,7 +349,8 @@ def run_image_pipeline(image_np: np.ndarray, confidence_threshold: float, privac
 
 def run_video_pipeline(video_bytes: bytes, blur: bool, frame_skip: int, output_quality: str) -> Dict[str, Any]:
     cache_key = f"{hash(video_bytes)}_{blur}_{frame_skip}_{output_quality}"
-    output_path = f"processed_video_{cache_key}.mp4"
+    os.makedirs("outputs", exist_ok=True)
+    output_path = os.path.join("outputs", f"processed_video_{cache_key}.mp4")
 
     if os.path.exists(output_path):
         log("Using cached processed video output.")
@@ -363,6 +373,7 @@ def run_video_pipeline(video_bytes: bytes, blur: bool, frame_skip: int, output_q
 
     log(f"Done. Video processed in {dt:.1f}s -> {output_path}")
     return {"output_path": output_path, "stats": {"processing_time": dt}}
+
 def ensure_web_mp4(input_path: str) -> str:
     """
     Convert output to a browser-friendly MP4 (H.264 + AAC) so Streamlit preview works.
@@ -630,15 +641,17 @@ else:
             dets = res["detections"]
             if dets:
                 df = pd.DataFrame(
-                    [{"Plate": d["Plate"], "Location": d["Location"], "Text": d["Text"], "Confidence": d["Confidence"]} for d in dets]
+                    [{"Plate": d["Plate"], "Location": d["Location"], "Text": d["Text"], "Det_Confidence": d["Confidence"], "OCR_Confidence": d.get("OCR_Confidence", 0.0)} for d in dets]
+
                 )
                 st.dataframe(
                     df,
                     hide_index=True,
                     use_container_width=True,
                     column_config={
-                        "Confidence": st.column_config.ProgressColumn("Confidence", format="%.1f%%", min_value=0, max_value=1)
+                        "Det_Confidence": st.column_config.ProgressColumn("Det_Confidence", format="%.1f%%", min_value=0, max_value=1)
                     },
+
                 )
             else:
                 st.warning("No plates detected at the current threshold.")

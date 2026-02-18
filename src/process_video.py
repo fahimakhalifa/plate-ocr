@@ -1,4 +1,3 @@
-# FILE: plate-ocr/src/process_video.py
 import os
 import sys
 
@@ -16,7 +15,7 @@ from ultralytics import YOLO
 
 # ✅ LOAD MODELS ONCE at startup (NOT per frame)
 print("⏳ Loading YOLO model...")
-yolo_model = YOLO(model_asset("LP-detection.pt"))
+yolo_model = YOLO(model_asset("last.pt"))
 print("⏳ Loading CRNN model...")
 crnn_model, idx_to_char, char_to_idx = load_crnn_model()
 print("✅ Models loaded.")
