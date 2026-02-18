@@ -14,7 +14,6 @@ This project is designed as a **portfolio-grade AI engineering demo**, not a toy
 - Supports **image and video** inputs
 - Exports results as **annotated media + JSON / CSV**
 - Clean, company-ready Streamlit interface
-- Docker + CI ready
 
 ---
 
@@ -23,7 +22,7 @@ This project is designed as a **portfolio-grade AI engineering demo**, not a toy
 - **Modular inference pipeline** (detect → crop → OCR → overlay → export)
 - **CTC-style decoding** for OCR output
 - **Frame skipping** for efficient video processing
-- **Robust path resolution** (works locally, in Docker, and CI)
+- **Robust path resolution** (works locally and in common repo layouts)
 - **Unit tests + linting** (pytest + ruff)
 - **No model weights committed** (real-world best practice)
 
@@ -54,11 +53,13 @@ plate-ocr/
 │  ├─ process_video.py
 │  └─ paths.py
 ├─ assets/
-│  └─ models/          # model weights (local only, not in git)
+│  └─ models/          # YOLO detector weights (local only, not in git)
+├─ model/              # OCR weights + vocab (local only, not in git)
 ├─ examples/
 │  ├─ test_image.jpg
 │  └─ test_video.mp4
 ├─ tests/
+├─ outputs/            # generated outputs (local only)
 ├─ Dockerfile
 ├─ docker-compose.yml
 ├─ requirements.txt
@@ -71,22 +72,24 @@ plate-ocr/
 
 Model weights are **not included in the repository**.
 
-Place the following files locally:
+Place these files locally:
 
-```
-assets/models/
-├─ LP-detection.pt
-├─ plate_model_v1.pth
-└─ char_to_idx.json
-```
+### 1) Detector (YOLO)
+- `assets/models/last.pt`
 
-The application will **automatically resolve these paths**.
+### 2) OCR (CRNN)
+- `model/plate_model_v1.pth`
+- `model/char_to_idx.json`
+
+> If your filenames differ, update the references inside:
+> - `app/streamlit_app.py` (YOLO weight filename)
+> - `src/inference.py` (OCR weights + vocab)
 
 ---
 
 ## ▶️ Run Locally (CPU)
 
-### 1. Create and activate a virtual environment
+### 1) Create and activate a virtual environment
 
 ```bash
 python -m venv venv
@@ -98,20 +101,28 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-### 2. Install dependencies
+### 2) Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Install FFmpeg (required for video processing)
+### 3) Add required model files
+
+Make sure these exist locally:
+
+- `assets/models/last.pt`
+- `model/plate_model_v1.pth`
+- `model/char_to_idx.json`
+
+### 4) Install FFmpeg (required for video processing)
 
 **Windows**
 ```bash
 winget install Gyan.FFmpeg
 ```
 
-Verify installation:
+Verify:
 ```bash
 ffmpeg -version
 ```
@@ -119,7 +130,7 @@ ffmpeg -version
 > FFmpeg is required for video preview and processing.  
 > Image-only usage does not require FFmpeg.
 
-### 4. Run the app
+### 5) Run the app
 
 ```bash
 streamlit run app/streamlit_app.py
@@ -129,12 +140,20 @@ Open in browser: http://localhost:8501
 
 ---
 
-## 🐳 Run with Docker
+## 🐳 Run with Docker (recommended)
 
+### Requirements
+You must have these files on your machine (not in git):
+- `assets/models/last.pt`
+- `model/plate_model_v1.pth`
+- `model/char_to_idx.json`
+
+### Run
 ```bash
-docker build -t plate-ocr .
-docker run -p 8501:8501 plate-ocr
+docker compose up --build
 ```
+
+Open in browser: http://localhost:8501
 
 ---
 
@@ -158,4 +177,14 @@ ruff check .
 
 ## 📜 License
 
-For educational and portfolio use.
+MIT License. See `LICENSE`.
+
+---
+
+## 🖼️ Screenshots
+
+### UI
+![Plate OCR UI](docs/screenshots/ui.png)
+
+### Sample result
+![Detection + OCR result](docs/screenshots/result.png)
