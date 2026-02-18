@@ -13,17 +13,26 @@ venv/
 # Local outputs / caches
 processed_video_*.mp4
 processed_video_*.web.mp4
+outputs/
+runs/
+runs_det/
 *.log
+*.mp4
 
 # OS / editor
 .DS_Store
 Thumbs.db
 .vscode/
+.idea/
 
 # Local model weights 
 *.pt
 *.pth
 assets/models/*.pt
 assets/models/*.pth
+assets/models/*.onnx
+model/*.pth
+model/*.pt
+model/*.onnx
+model/*.json
 
-processed_video_*.mp4

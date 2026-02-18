@@ -6,7 +6,10 @@ services:
     container_name: plate-ocr
     ports:
       - "8501:8501"
-    volumes:
-      - .:/app
     environment:
       - STREAMLIT_SERVER_HEADLESS=true
+    volumes:
+      # Mount ONLY the weights (keeps image stable)
+      - ./assets/models:/app/assets/models:ro
+      - ./model:/app/model:ro
+      - ./outputs:/app/outputs
