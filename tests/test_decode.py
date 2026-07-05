@@ -1,24 +1,36 @@
+import torch
+
 from src.dataset import decode
 
 
-def test_decode_removes_blanks_and_repeats():
-    # CTC-style: remove blanks (0) and collapse consecutive duplicates only
-    # pred: 0 1 1 0 2 2 3 0 3 -> 1,2,3,3 -> "ABCC"
-    pred = [0, 1, 1, 0, 2, 2, 3, 0, 3]
-    idx_to_char = {1: "A", 2: "B", 3: "C"}
+def test_decode_removes_ctc_blanks_and_repeated_characters():
+    idx_to_char = {
+        1: "A",
+        2: "B",
+        3: "1",
+    }
 
-    class FakeTensor:
-        def __init__(self, xs):
-            self.xs = xs
-        def __iter__(self):
-            for x in self.xs:
-                yield FakeItem(x)
+    prediction = torch.tensor([0, 1, 1, 0, 2, 2, 3, 3, 0])
 
-    class FakeItem:
-        def __init__(self, v):
-            self.v = v
-        def item(self):
-            return self.v
+    assert decode(prediction, idx_to_char) == "AB1"
 
-    out = decode(FakeTensor(pred), idx_to_char)
-    assert out == "ABCC"
+
+def test_decode_ignores_unknown_indices():
+    idx_to_char = {
+        1: "A",
+        2: "B",
+    }
+
+    prediction = torch.tensor([1, 99, 99, 0, 2])
+
+    assert decode(prediction, idx_to_char) == "AB"
+
+
+def test_decode_handles_empty_prediction():
+    idx_to_char = {
+        1: "A",
+    }
+
+    prediction = torch.tensor([])
+
+    assert decode(prediction, idx_to_char) == ""
