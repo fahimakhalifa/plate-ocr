@@ -1,5 +1,7 @@
 # Plate OCR — License Plate Recognition & Privacy Filter
 
+![CI](https://github.com/fahimakhalifa/plate-ocr/actions/workflows/ci.yml/badge.svg)
+
 A production-ready **License Plate Recognition (LPR)** system that detects license plates, recognizes text, optionally applies privacy blurring, and supports **both images and videos** through a clean Streamlit UI.
 
 This project is designed as a **portfolio-grade AI engineering demo**, not a toy script.
