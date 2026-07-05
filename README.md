@@ -68,6 +68,21 @@ plate-ocr/
 
 ---
 
+## System Architecture
+
+```text
+Image / Video Input
+        ↓
+YOLOv8 Plate Detector
+        ↓
+Plate Crop Extraction
+        ↓
+CRNN OCR Model
+        ↓
+CTC-style Decoding
+        ↓
+Annotated Output + JSON/CSV Export
+
 ## 📦 Model Weights (Required)
 
 Model weights are **not included in the repository**.
