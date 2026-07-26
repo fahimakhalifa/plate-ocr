@@ -85,6 +85,10 @@ CTC-style Decoding
         ↓
 Annotated Output + JSON/CSV Export
 
+```
+
+---
+
 ## 📦 Model Weights (Required)
 
 Model weights are **not included in the repository**.
